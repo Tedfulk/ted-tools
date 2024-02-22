@@ -1,0 +1,1 @@
+from .text_classification_models import SinglePrediction
