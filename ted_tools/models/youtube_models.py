@@ -1,13 +1,14 @@
 import re
 from typing import List
-from pydantic import BaseModel, Field, field_validator, ValidationError
+
+from pydantic import BaseModel, Field, field_validator
 
 
 class Titles(BaseModel):
-    title: List[str] = Field(
+    titles: List[str] = Field(
         ...,
-        title="List of 3 titles about the video",
-        min_items=3,
+        description="List of 3 titles about the video",
+        min_items=1,
         max_items=3,
         examples=[
             "Mojo Is FASTER Than Rust By 50%",
@@ -18,18 +19,40 @@ class Titles(BaseModel):
 
 
 class Description(BaseModel):
-    description: str
+    title: str = Field(
+        ...,
+        description="Title of the description.",
+    )
+    description: str = Field(
+        ...,
+        description="An SEO driven description for the video that will be used on YouTube. This should be 50 words.",
+    )
 
 
-class Transcript(BaseModel):
-    transcript: str
+class Script(BaseModel):
+    title: str = Field(
+        ...,
+        description="Title of the script.",
+    )
+    script: str = Field(
+        ...,
+        description="The script for the video that will have a introduction, supporting sections of conversation, and a conclusion.",
+    )
+
+    @field_validator("title")
+    def validate_title(cls, value: str):
+        # remove all non-alphanumeric characters
+        value = re.sub(r"[^a-zA-Z0-9]", "", value)
+        # replace all white space with "-"
+        value = value.replace(" ", "-")
+        return value
 
 
 class ThumbnailPrompts(BaseModel):
     thumbnail_prompts: List[str] = Field(
         ...,
-        title="List of 3 prompts for the thumbnail for this video",
-        min_items=3,
+        description="List of 3 prompts for the thumbnail for this video",
+        min_items=1,
         max_items=3,
         examples=[
             "Illustrate 'Mojo' leading 'Rust' in a futuristic race, with speed lines and digital motifs.",
@@ -42,7 +65,7 @@ class ThumbnailPrompts(BaseModel):
 class Hashtags(BaseModel):
     hashtags: List[str] = Field(
         ...,
-        title="List of 10 hashtags for this video",
+        description="List of 10 hashtags for this video",
         min_items=5,
         max_items=10,
         examples=[
@@ -62,14 +85,22 @@ class Hashtags(BaseModel):
     @field_validator("hashtags")
     def validate_hashtag(cls, values: str):
         for v in values:
-            if not re.match(r"^#[^\s]+$", v):
-                raise ValueError("each hashtag must start with # and contain no spaces")
-            return values
+            if not v.startswith("#"):
+                v = f"#{v}"
+            elif " " in v:
+                v = v.replace(" ", "")
+            elif not v.isalnum():
+                v = re.sub(r"[^a-zA-Z0-9]", "", v[1:])
+            else:
+                raise ValueError(
+                    "each hashtag must start with #, contain no spaces, and must be alphanumeric"
+                )
+        return values
 
 
 class YoutubeMetadata(BaseModel):
     titles: Titles
     description: Description
-    transcript: Transcript
+    transcript: Script
     thumbnail_prompts: ThumbnailPrompts
     hashtags: Hashtags

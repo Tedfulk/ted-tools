@@ -1,13 +1,13 @@
 from api_client import get_openai_client
-from ted_tools.models import Titles
+from ted_tools.models import Hashtags
 from ted_tools.utils import write_or_append_with_version
 
 client = get_openai_client()
 
 
-def create_titles(user_input: str):
+def create_hashtags(user_input: str):
     """
-    Creates 3 new titles for a given user input and writes them to a JSON file.
+    Create 10 Hashtags for a given input using "dolphin-mixtral". Then writes the generated Hashtags to a JSON file.
 
     Args:
         user_input (str)
@@ -17,14 +17,16 @@ def create_titles(user_input: str):
         messages=[
             {
                 "role": "user",
-                "content": f"Give me three new titles for a {user_input}.",
+                "content": f"Give me ten new hashtags for a video about {user_input}.",
             }
         ],
-        response_model=Titles,
+        response_model=Hashtags,
     )
-
+    temp_hashtag_fn = (
+        resp.hashtags[0][1:] + resp.hashtags[1] + resp.hashtags[2]
+    ).replace("#", "-")
     write_or_append_with_version(
-        filename=resp.titles[0].replace(" ", "-"),
+        filename=temp_hashtag_fn,
         filetype=".json",
         content=resp.model_dump_json(indent=2),
     )

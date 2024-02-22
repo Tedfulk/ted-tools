@@ -3,13 +3,16 @@ from pydantic import BaseModel
 
 
 class ContentType(str, enum.Enum):
-    """Enumeration for single text classification."""
+    """Enumeration for a single text classification."""
 
-    BRIEF = "brief"
-    DETAILED = "detailed"
+    TITLE = "title"
+    TUTORIAL = "tutorial"
 
 
 class SinglePrediction(BaseModel):
-    """Class for a single class label prediction."""
+    """Class for a single ContentType prediction."""
 
-    class_label: ContentType
+    content_type: ContentType
+
+
+# TODO: Think about an SPR and SPRDecopressor enum and an encompassing LLMSummary class.
