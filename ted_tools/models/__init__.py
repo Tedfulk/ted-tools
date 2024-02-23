@@ -4,6 +4,7 @@ from .youtube_models import (
     Hashtags,
     Script,
     ThumbnailPrompts,
+    Transcript,
     Titles,
     YoutubeMetadata,
 )

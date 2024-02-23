@@ -5,9 +5,9 @@ from ted_tools.utils import write_or_append_with_version
 client = get_openai_client()
 
 
-def create_titles(user_input: str):
+def create_youtube_metadata(user_input: str):
     """
-    Creates 3 new titles for a given user input and writes them to a JSON file.
+    Creates metadata for a YouTube video given a users input and writes them to a JSON file.
 
     Args:
         user_input (str)
@@ -17,10 +17,10 @@ def create_titles(user_input: str):
         messages=[
             {
                 "role": "user",
-                "content": f"Give me three new titles for a {user_input}.",
+                "content": f"Generate Titles, Description, Hashtags, Transcript, ThumbnailPrompts for a YouTube video about {user_input}. Output should be in json.",
             }
         ],
-        response_model=Titles,
+        response_model=YoutubeMetadata,
     )
 
     write_or_append_with_version(
