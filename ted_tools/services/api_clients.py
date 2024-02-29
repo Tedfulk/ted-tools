@@ -3,6 +3,8 @@ import os
 import instructor
 from typing import Optional
 from dotenv import load_dotenv
+from phi.llm.groq import Groq
+
 
 load_dotenv()
 
@@ -22,3 +24,14 @@ def get_openai_client(
         mode=instructor.Mode.JSON,
     )
     return client
+
+
+def get_groq_client(
+    max_retries: Optional[int] = 1,
+):
+    groq_client = Groq(
+        model="mixtral-8x7b-32768",
+        api_key=os.environ["GROQ_API_KEY"],
+        max_retries=max_retries,
+    )
+    return groq_client
