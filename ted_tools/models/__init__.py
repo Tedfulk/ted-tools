@@ -7,3 +7,4 @@ from .youtube_models import (
     Titles,
     YoutubeMetadata,
 )
+from .img_classification import ImageClassification

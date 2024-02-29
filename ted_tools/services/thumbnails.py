@@ -1,11 +1,12 @@
-import typer
-
 from pathlib import Path
+
+import typer
 from phi.assistant import Assistant
 from phi.llm.ollama import Ollama
+from rich import print_json
+
 from ted_tools.models import ThumbnailPrompts
 from ted_tools.services.llm_tools import TedsFileTool
-from rich import print_json
 
 thumbnails = typer.Typer()
 
