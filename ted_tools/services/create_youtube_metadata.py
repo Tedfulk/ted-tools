@@ -1,4 +1,4 @@
-from api_client import get_openai_client
+from ted_tools.services.api_clients import get_openai_client
 from ted_tools.models import Titles, YoutubeMetadata
 from ted_tools.utils import write_or_append_with_version
 

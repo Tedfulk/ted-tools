@@ -16,7 +16,7 @@ inquirer = "^3.2.4"
 instructor = "^0.6.1"
 python-dotenv = "^1.0.1"
 llm = "^0.13.1"
-phidata = "^2.3.42"
+phidata = "^2.3.48"
 duckdb = "^0.10.0"
 duckduckgo-search = "^4.5.0"
 polars = "^0.20.10"
@@ -28,6 +28,8 @@ psycopg = "^3.1.18"
 arxiv = "^2.1.0"
 path = "^16.10.0"
 rich = "^13.7.1"
+groq = "^0.4.1"
+ipython = "^8.22.1"
 
 
 [tool.poetry.group.dev.dependencies]
