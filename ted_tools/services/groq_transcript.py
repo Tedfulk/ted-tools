@@ -19,7 +19,7 @@ from ted_tools.utils import (
 gtranscript = typer.Typer()
 groq_client = get_groq_client()
 transcript_schema = Transcript.model_json_schema()
-# print("transcript_schema = ", transcript_schema)
+print("transcript_schema = ", transcript_schema)
 
 
 @gtranscript.command(help="Generate a transcript for a video given a topic using Groq.")
@@ -30,8 +30,9 @@ def gen_transcript(user_input: str):
     )
     groq_response_transcript_str = gen_transcript.run(
         stream=False,
-        message=f"Generate a transcript for my topic on {user_input}. In your initial output matches this JSON schema: {transcript_schema} and use double quotes for all the keys in the schema.",
+        message=f"Generate a transcript for my topic on {user_input}. Ensure your output matches this transcript JSON schema: {transcript_schema} and use double quotes for all the keys in the schema.",
     )
+    print("groq_response_transcript_str = ", groq_response_transcript_str)
     try:
         metadata_dict = json.loads(groq_response_transcript_str)
     except json.decoder.JSONDecodeError:
