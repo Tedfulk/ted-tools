@@ -46,3 +46,9 @@ def write_or_append_with_version(filename: str, filetype: str, content: str):
 
         with open(new_filepath, "w") as file:
             file.write(content)
+
+
+def create_file_name(title: str, file_ext: str) -> str:
+    if title:
+        file_parts = title.replace(" ", "-")
+        return file_parts + "." + file_ext
