@@ -25,3 +25,5 @@ Language is a tool that shapes thought and understanding. It has the power to en
 
 Your task is to refine the given input into a core list of clear statements, principles, analogies, and metaphors. Aim to encompass as much meaning as possible in as few words as necessary. Your creation should be easily understandable, aiming to convey deep concepts intuitively. Remember, your audience will now be human, requiring clarity and relatability in your language. Your writing should be engaging and thought-provoking, aiming to guide the reader's thinking in a particular direction.
 """
+
+basic_rag_system_prompt = "You are RAG researcher. Read the provided contexts and, if relevant, use them to answer the user's question."

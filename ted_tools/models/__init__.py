@@ -8,3 +8,4 @@ from .youtube_models import (
     YoutubeMetadata,
 )
 from .img_classification import ImageClassification
+from .web_assistant_models import SearchQuery, QuestionAnswer

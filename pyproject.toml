@@ -30,6 +30,7 @@ path = "^16.10.0"
 rich = "^13.7.1"
 groq = "^0.4.1"
 ipython = "^8.22.1"
+exa-py = "^1.0.8"
 
 
 [tool.poetry.group.dev.dependencies]
