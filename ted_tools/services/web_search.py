@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Optional, List
 import typer
 from dotenv import load_dotenv
 from exa_py import Exa
@@ -53,6 +53,15 @@ def exa(
     context: Optional[bool] = typer.Option(
         None, "-c", "--context", help="Flag to fetch context and highlights"
     ),
+    include_domains: Optional[List[str]] = typer.Option(
+        None, "-i", "--include-domains", help="List of domains to include in the search"
+    ),
+    exclude_domains: Optional[List[str]] = typer.Option(
+        None,
+        "-e",
+        "--exclude-domains",
+        help="List of domains to exclude from the search",
+    ),
 ):
     """
     Query the Exa API for a given user_input.
@@ -66,6 +75,12 @@ def exa(
         search_params["start_published_date"] = (
             datetime.now() - timedelta(days=7)
         ).strftime("%Y-%m-%d")
+
+    if include_domains:
+        search_params["include_domains"] = include_domains
+
+    if exclude_domains:
+        search_params["exclude_domains"] = exclude_domains
 
     if context:
         highlights_options = {
@@ -101,10 +116,6 @@ def wiki(user_input: str):
         use_tools=True,
     )
     wiki_assistant.print_response(message=user_input)
-    # response = wiki_assistant.run(user_input)
-    # console = Console()
-    # console.print("Wikipedia Search Results:", style="bold green")
-    # console.print(response)
 
 
 @search.command()
@@ -118,10 +129,6 @@ def arxiv(user_input: str):
         use_tools=True,
     )
     arxiv_assistant.print_response(message=user_input)
-    # response = assistant.run(query)
-    # console = Console()
-    # console.print("ArXiv Search Results:", style="bold green")
-    # console.print(response)
 
 
 if __name__ == "__main__":
