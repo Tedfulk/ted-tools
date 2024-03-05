@@ -1,7 +1,5 @@
 import os
-from datetime import datetime, timedelta
 from typing import Optional
-
 import typer
 from dotenv import load_dotenv
 from exa_py import Exa
@@ -12,6 +10,9 @@ from rich.table import Table
 
 from ted_tools.models import QuestionAnswer
 from ted_tools.utils import basic_rag_system_prompt
+from phi.tools.wikipedia import WikipediaTools
+from phi.tools.arxiv import ArxivTools
+from datetime import datetime, timedelta
 
 search = typer.Typer()
 
@@ -47,12 +48,15 @@ def display_results(search_response, qa_with_context=None):
 
 
 @search.command()
-def query_exa(
+def exa(
     user_input: str,
     context: Optional[bool] = typer.Option(
         None, "-c", "--context", help="Flag to fetch context and highlights"
     ),
 ):
+    """
+    Query the Exa API for a given user_input.
+    """
     search_params = {
         "query": user_input,
         "num_results": 5,
@@ -84,6 +88,40 @@ def query_exa(
     else:
         search_response = exa.search(**search_params)
         display_results(search_response)
+
+
+@search.command()
+def wiki(user_input: str):
+    """
+    Search Wikipedia for a given user_input.
+    """
+    wiki_assistant = Assistant(
+        llm=Ollama(model="dolphin-mixtral:8x7b-v2.7"),
+        tools=[WikipediaTools()],
+        use_tools=True,
+    )
+    wiki_assistant.print_response(message=user_input)
+    # response = wiki_assistant.run(user_input)
+    # console = Console()
+    # console.print("Wikipedia Search Results:", style="bold green")
+    # console.print(response)
+
+
+@search.command()
+def arxiv(user_input: str):
+    """
+    Search ArXiv for a given query. Only runs 1 search.
+    """
+    arxiv_assistant = Assistant(
+        llm=Ollama(model="dolphin-mixtral:8x7b-v2.7"),
+        tools=[ArxivTools()],
+        use_tools=True,
+    )
+    arxiv_assistant.print_response(message=user_input)
+    # response = assistant.run(query)
+    # console = Console()
+    # console.print("ArXiv Search Results:", style="bold green")
+    # console.print(response)
 
 
 if __name__ == "__main__":
