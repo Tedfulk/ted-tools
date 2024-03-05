@@ -1,71 +1,90 @@
-import json
 import os
-from typing import List, Optional
+from datetime import datetime, timedelta
+from typing import Optional
 
-import httpx
 import typer
 from dotenv import load_dotenv
 from exa_py import Exa
 from phi.assistant import Assistant
 from phi.llm.ollama import Ollama
-from phi.tools.arxiv import ArxivTools
-from phi.tools.wikipedia import WikipediaTools
-from pydantic import BaseModel, Field
-from rich import print, print_json
-from rich.pretty import pprint
-from ted_tools.utils import basic_rag_system_prompt
-from ted_tools.models import SearchQuery, QuestionAnswer
+from rich.console import Console
+from rich.table import Table
 
+from ted_tools.models import QuestionAnswer
+from ted_tools.utils import basic_rag_system_prompt
+
+search = typer.Typer()
 
 load_dotenv()
-
 exa = Exa(os.getenv("EXA_API_KEY"))
 
 
-def gen_search_query(user_input: str):
-    search_query_assistant = Assistant(
-        # llm=Ollama(model="mistral"),
-        llm=Ollama(model="dolphin-mixtral:8x7b-v2.7"),
-        output_model=SearchQuery,
-        system_prompt="You are a helpful assistant that generates search queries based on user input. Only generate one search query.",
-        # debug_mode=True,
-    )
-    # search_query_assistant.print_response(message=f"{user_input}")
-    search_query_response = search_query_assistant.run(message=f"{user_input}")
-    # print(search_query_response.model_dump_json(indent=2))
-    # Parameters for our Highlights search
-    highlights_options = {
-        "num_sentences": 7,  # how long our highlights should be
-        "highlights_per_url": 1,  # just get the best highlight for each URL
+def display_results(search_response, qa_with_context=None):
+    source_table = Table(title="Sources", padding=(1, 2))
+    source_table.add_column("Title", justify="left", style="cyan")
+    source_table.add_column("Url", justify="center", style="magenta")
+    source_table.add_column("Publish Date", justify="center", style="magenta")
+    source_table.add_column("Author", justify="center", style="magenta")
+    for result in search_response.results:
+        source_table.add_row(
+            result.title,
+            result.url,
+            result.published_date,
+            result.author,
+        )
+
+    source_console = Console()
+    source_console.print(source_table)
+    print()
+
+    if qa_with_context:
+        qa_table = Table(title="Answer with Context", padding=(1, 2))
+        qa_table.add_column("Question", justify="center", style="cyan")
+        qa_table.add_column("Answer", justify="center", style="magenta")
+        qa_table.add_row(qa_with_context.question, qa_with_context.answer)
+        console = Console()
+        console.print(qa_table)
+
+
+@search.command()
+def query_exa(
+    user_input: str,
+    context: Optional[bool] = typer.Option(
+        None, "-c", "--context", help="Flag to fetch context and highlights"
+    ),
+):
+    search_params = {
+        "query": user_input,
+        "num_results": 5,
+        "use_autoprompt": True,
     }
+    if "recent" in user_input or "latest" in user_input:
+        search_params["start_published_date"] = (
+            datetime.now() - timedelta(days=7)
+        ).strftime("%Y-%m-%d")
 
-    search_response = exa.search_and_contents(
-        search_query_response.search_query,
-        highlights=highlights_options,
-        num_results=5,
-        use_autoprompt=False,
-    )
-    pprint("search resuts = ", search_response.results)
-    info = [sr.highlights[0] for sr in search_response.results]
-
-    user_prompt = f"""Sources: {info}
-
-    Question: {search_query_response.search_query}"""
-
-    with_context_assistant = Assistant(
-        # llm=Ollama(model="mistral"),
-        llm=Ollama(model="dolphin-mixtral:8x7b-v2.7"),
-        output_model=QuestionAnswer,
-        system_prompt=basic_rag_system_prompt,
-        user_prompt=user_prompt,
-        # debug_mode=True,
-    )
-    pprint(with_context_assistant.run())
-    # with_context_response = with_context_assistant.run()
-    # print(with_context_response.model_dump_json(indent=2))
+    if context:
+        highlights_options = {
+            "num_sentences": 7,
+            "highlights_per_url": 1,
+        }
+        search_params["highlights"] = highlights_options
+        search_response = exa.search_and_contents(**search_params)
+        highlight_info = [sr.highlights[0] for sr in search_response.results]
+        user_prompt = f"""Sources: {highlight_info}\n\nQuestion: {user_input}"""
+        assistant_with_context = Assistant(
+            llm=Ollama(model="dolphin-mixtral:8x7b-v2.7"),
+            output_model=QuestionAnswer,
+            system_prompt=basic_rag_system_prompt,
+            user_prompt=user_prompt,
+            debug_mode=False,
+        )
+        qa_with_context = assistant_with_context.run()
+        display_results(search_response, qa_with_context)
+    else:
+        search_response = exa.search(**search_params)
+        display_results(search_response)
 
 
-# gen_search_query("What's the latest tech news?")
-gen_search_query(
-    "In an era of increasing digital threats, what multifaceted approaches are organizations adopting to fortify their cyber defenses and safeguard confidential information from potential breaches and cyber attacks?"
-)
+if __name__ == "__main__":
+    search()
