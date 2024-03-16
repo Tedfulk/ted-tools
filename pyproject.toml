@@ -38,6 +38,9 @@ google-suite = "^0.1.4"
 [tool.poetry.group.dev.dependencies]
 ipython = "^8.21.0"
 
+[tool.poetry.scripts]
+ted = "ted_tools.main:ted"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
