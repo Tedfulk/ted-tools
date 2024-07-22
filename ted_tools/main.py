@@ -1,9 +1,9 @@
-from ted_tools.services.youtube import yt
-from ted_tools.services.gsuite import gmail, blogger
-
-from ted_tools.services.transcript import transcript
-from ted_tools.services.img_detection import ocr
 import typer
+
+from ted_tools.services.gsuite import blogger, gmail
+from ted_tools.services.img_detection import rename_images
+from ted_tools.services.transcript import transcript
+from ted_tools.services.youtube import yt
 
 ted = typer.Typer()
 ted.add_typer(
@@ -19,10 +19,7 @@ ted.add_typer(
 )
 ted.add_typer(blogger, name="blogger", help="Subcommands to interact with blogger.")
 ted.add_typer(
-    ocr,
-    name="ocr",
+    rename_images,
+    name="rename_images",
     help="Subcommands to interact with ollama ocr model to rename images better.",
 )
-
-# if __name__ == "__main__":
-#     ted()
