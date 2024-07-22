@@ -18,12 +18,3 @@ class ImageClassification(BaseModel):
             return joined_keywords
         limited_keywords = "_".join(joined_keywords.split("_")[:4])
         return limited_keywords
-
-
-# class ImageClassification(BaseModel):
-#     title: str = Field(..., description="Title of the image.")
-#     category: str = Field(..., description="Category of the image.")
-#     style: str = Field(..., description="Style of the image.")
-#     description: str = Field(
-#         ..., description="Short 1 sentence description of the image."
-#     )

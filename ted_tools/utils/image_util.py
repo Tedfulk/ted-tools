@@ -25,7 +25,6 @@ def convert_webp_to_jpeg(file_path):
             # Convert and save the image as a JPG file
             img.convert("RGB").save(new_file_path, "JPEG")
 
-            # return f"Converted to JPG and saved as: {new_file_path}"
             return new_file_path
     except IOError:
         return "Failed to open or process the file. Please ensure it is a valid WebP image."
