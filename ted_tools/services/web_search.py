@@ -11,7 +11,6 @@ from rich.table import Table
 from ted_tools.models import QuestionAnswer
 from ted_tools.utils import basic_rag_system_prompt
 from phi.tools.wikipedia import WikipediaTools
-from phi.tools.arxiv import ArxivTools
 from datetime import datetime, timedelta
 
 search = typer.Typer()

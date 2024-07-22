@@ -2,7 +2,7 @@ from PIL import Image
 import os
 
 
-def convert_webp_to_jpg(file_path):
+def convert_webp_to_jpeg(file_path):
     """
     Check if the given file is a WebP image and convert it to a JPG file.
 
@@ -19,18 +19,13 @@ def convert_webp_to_jpg(file_path):
     try:
         # Attempt to open the image to confirm it's a valid WebP file
         with Image.open(file_path) as img:
-            # Define the new file name with a .jpg extension
-            new_file_path = os.path.splitext(file_path)[0] + ".jpg"
+            # Define the new file name with a .jpeg extension
+            new_file_path = os.path.splitext(file_path)[0] + ".jpeg"
 
             # Convert and save the image as a JPG file
             img.convert("RGB").save(new_file_path, "JPEG")
 
-            return f"Converted to JPG and saved as: {new_file_path}"
+            # return f"Converted to JPG and saved as: {new_file_path}"
+            return new_file_path
     except IOError:
         return "Failed to open or process the file. Please ensure it is a valid WebP image."
-
-        # Do something with the base64 encoded image, e.g., store it in a list or dictionary
-        # You can continue processing here or return the b64 encoded data
-
-    # If you want to continue processing after encoding images to base64, you can return the jpg_paths
-    # return jpg_paths

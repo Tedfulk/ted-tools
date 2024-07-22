@@ -3,38 +3,42 @@ from phi.tools.duckduckgo import DuckDuckGo
 from phi.tools.python import PythonTools
 from phi.tools.file import FileTools
 from phi.tools.shell import ShellTools
-from phi.tools.arxiv import ArxivTools
 from phi.tools.wikipedia import WikipediaTools
+from phi.llm.ollama import Ollama
 
-# # Assistant with DuckDuckGo tool configuration
-# duck_assistant = Assistant(tools=[DuckDuckGo()], show_tool_calls=True)
-# # duck_assistant.print_response(
-# #     "Whats happening in London? Summarize top stories with sources."
-# # )
+# Assistant with DuckDuckGo tool configuration
+duck_assistant = Assistant(
+    llm=Ollama(model="phi3"), tools=[DuckDuckGo()], show_tool_calls=True
+)
+# duck_assistant = Assistant(llm=Ollama(model="dolphin-mixtral:8x7b-v2.7") tools=[DuckDuckGo()], show_tool_calls=True)
+# duck_assistant.print_response(
+#     "Whats happening in London? Summarize top stories with sources."
+# )
 
-# # Assistant with PythonTools tool configuration
-# assistant = Assistant(tools=[PythonTools()], show_tool_calls=True)
+# Assistant with PythonTools tool configuration
+assistant = Assistant(
+    llm=Ollama(model="phi3"), tools=[PythonTools()], show_tool_calls=True
+)
+# assistant = Assistant(llm=Ollama(model="dolphin-mixtral:8x7b-v2.7") tools=[PythonTools()], show_tool_calls=True)
 # assistant.print_response(
 #     "Write a python script for fibonacci series and display the result till the 10th number"
 # )
 
-# # Assistant with FileTools tool configuration
-# assistant = Assistant(tools=[FileTools()], show_tool_calls=True)
+# Assistant with FileTools tool configuration
+assistant = Assistant(
+    llm=Ollama(model="phi3"), tools=[FileTools()], show_tool_calls=True
+)
+# assistant = Assistant(llm=Ollama(model="dolphin-mixtral:8x7b-v2.7") tools=[FileTools()], show_tool_calls=True)
 # assistant.print_response(
 #     "What is the most advanced LLM currently? Save the answer to a file."
 # )
 
-# # Assistant with ShellTools tool configuration
-# assistant = Assistant(tools=[ShellTools()], show_tool_calls=True)
+# Assistant with ShellTools tool configuration
+assistant = Assistant(
+    llm=Ollama(model="phi3"), tools=[ShellTools()], show_tool_calls=True
+)
+# assistant = Assistant(llm=Ollama(model="dolphin-mixtral:8x7b-v2.7") tools=[ShellTools()], show_tool_calls=True)
 # assistant.print_response("Show me the contents of the current directory")
-
-# # Assistant with ArxivTools tool configuration
-# assistant = Assistant(tools=[ArxivTools()], show_tool_calls=True)
-# assistant.print_response("Search arxiv for 'language models'")
-
-# # Assistant with WikipediaTools tool configuration
-# assistant = Assistant(tools=[WikipediaTools()], show_tool_calls=True)
-# assistant.print_response("Search wikipedia for 'Artificial Intelligence'")
 
 
 from phi.tools import Toolkit
