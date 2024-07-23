@@ -6,12 +6,23 @@ from typing import List
 
 import ollama
 import typer
+from tqdm import tqdm
 
 from ted_tools.models import ImageClassification
 from ted_tools.utils import convert_webp_to_jpeg
 
 rename_images = typer.Typer()
-logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.ERROR)
+
+
+def configure_logging(
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Enable verbose output")
+):
+    if verbose:
+        logger.setLevel(logging.INFO)
+    else:
+        logger.setLevel(logging.ERROR)
 
 
 def _convert_files_to_jpeg(directory_path: Path) -> List[Path]:
@@ -40,10 +51,10 @@ def _generate_keywords(image_path: Path) -> dict:
     return response
 
 
-def _process_file(
+def _process_image(
     directory_path: Path, converted_files: List[Path], webp_files: List[Path]
 ) -> None:
-    for file in converted_files:
+    for file in tqdm(converted_files, desc="Processing images", unit="image"):
         if file.name == ".DS_Store":
             continue
 
@@ -61,29 +72,34 @@ def _process_file(
             new_file_path = directory_path / f"{new_file_name}{file.suffix}"
 
             file.rename(new_file_path)
-            logging.info(f"Renamed {file.name} to {new_file_path.name}")
+            logger.info(f"Renamed {file.name} to {new_file_path.name}")
 
             # Find the corresponding WebP file
             webp_file = next((w for w in webp_files if w.stem == file.stem), None)
             if webp_file:
                 webp_file.unlink()
                 webp_files.remove(webp_file)
-                logging.info(f"Removed original WebP file: {webp_file}")
+                logger.info(f"Removed original WebP file: {webp_file}")
             else:
-                logging.warning(f"No corresponding WebP file found for {file.name}")
+                logger.warning(f"No corresponding WebP file found for {file.name}")
 
         except json.JSONDecodeError:
-            logging.error(f"Failed to parse JSON response for {file}")
+            logger.error(f"Failed to parse JSON response for {file}")
         except Exception as e:
-            logging.error(f"Error processing {file}: {str(e)}")
+            logger.error(f"Error processing {file}: {str(e)}")
 
     # Check if there are any remaining WebP files
     for remaining_webp in webp_files:
-        logging.warning(f"Unprocessed WebP file: {remaining_webp}")
+        logger.warning(f"Unprocessed WebP file: {remaining_webp}")
 
 
 @rename_images.command(help="Rename image files in a directory based on their content.")
-def process_dir(directory_path: str) -> None:
+def process_dir(
+    directory_path: str,
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Enable verbose output"
+    ),
+) -> None:
     """
     Rename images in a directory based on their content using AI-generated keywords.
 
@@ -91,15 +107,16 @@ def process_dir(directory_path: str) -> None:
         directory_path (str): The path to the directory containing the images.
     """
     dir_path = Path(directory_path)
+    configure_logging(verbose)
 
     webp_files = list(dir_path.glob("*.webp"))
-    logging.info(f"Found {len(webp_files)} WebP files")
+    logger.info(f"Found {len(webp_files)} WebP files")
 
     converted_jpg_files = _convert_files_to_jpeg(dir_path)
-    logging.info(f"Converted {len(converted_jpg_files)} files to JPEG")
+    logger.info(f"Converted {len(converted_jpg_files)} files to JPEG")
 
-    _process_file(dir_path, converted_jpg_files, webp_files)
+    if not converted_jpg_files:
+        logger.warning("No JPEG files to process. Exiting.")
+        return
 
-
-if __name__ == "__main__":
-    rename_images()
+    _process_image(dir_path, converted_jpg_files, webp_files)
